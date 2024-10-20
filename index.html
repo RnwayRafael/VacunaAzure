@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Vacunación - El Salvador</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="form-container">
+        <h1>Sistema de Vacunación</h1>
+        <h2>El Salvador</h2>
+
+        <!-- Formulario para datos personales -->
+        <form id="datosPacienteForm">
+            <div class="form-group">
+                <label for="primerNombre">Primer Nombre:</label>
+                <input type="text" id="primerNombre" name="primerNombre" required>
+            </div>
+            <div class="form-group">
+                <label for="segundoNombre">Segundo Nombre:</label>
+                <input type="text" id="segundoNombre" name="segundoNombre">
+            </div>
+            <div class="form-group">
+                <label for="primerApellido">Primer Apellido:</label>
+                <input type="text" id="primerApellido" name="primerApellido" required>
+            </div>
+            <div class="form-group">
+                <label for="segundoApellido">Segundo Apellido:</label>
+                <input type="text" id="segundoApellido" name="segundoApellido">
+            </div>
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento:</label>
+                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
+            </div>
+            <div class="form-group">
+                <label for="pais">País:</label>
+                <select id="pais" name="pais" required>
+                    <option value="El Salvador">El Salvador</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="departamento">Departamento:</label>
+                <select id="departamento" name="departamento" onchange="actualizarMunicipios()" required>
+                    <option value="">Seleccione un departamento</option>
+                    <option value="San Salvador">San Salvador</option>
+                    <option value="La Libertad">La Libertad</option>
+                    <option value="Santa Ana">Santa Ana</option>
+                    <option value="San Miguel">San Miguel</option>
+                    <!-- Agregar los 14 departamentos -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="municipio">Municipio:</label>
+                <select id="municipio" name="municipio" required>
+                    <option value="">Seleccione un municipio</option>
+                    <!-- Municipios actualizados dinámicamente -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="grupoEdad">Grupo de Edad:</label>
+                <select id="grupoEdad" name="grupoEdad" onchange="mostrarCamposPadres()" required>
+                    <option value="Niños">Niños</option>
+                    <option value="Adultos">Adultos</option>
+                    <option value="Embarazadas">Mujeres Embarazadas</option>
+                    <option value="Mayores">Mayores de Edad</option>
+                </select>
+            </div>
+            <div class="form-group" id="padresSection" style="display:none;">
+                <label for="nombrePadre">Nombre del Padre:</label>
+                <input type="text" id="nombrePadre" name="nombrePadre">
+                <label for="nombreMadre">Nombre de la Madre:</label>
+                <input type="text" id="nombreMadre" name="nombreMadre">
+            </div>
+            <div class="button-container">
+                <button type="button" onclick="mostrarVacunas()">Siguiente: Vacunas</button>
+            </div>
+        </form>
+
+        <!-- Formulario de vacunación -->
+        <div id="vacunacion-form"></div>
+    </div>
+
+    <script>
+        // Mostrar los campos de los padres si el grupo de edad es "Niños"
+        function mostrarCamposPadres() {
+            const grupoEdad = document.getElementById('grupoEdad').value;
+            const padresSection = document.getElementById('padresSection');
+            if (grupoEdad === 'Niños') {
+                padresSection.style.display = 'block';
+            } else {
+                padresSection.style.display = 'none';
+            }
+        }
+
+        // Actualizar los municipios según el departamento seleccionado
+        function actualizarMunicipios() {
+            const departamento = document.getElementById('departamento').value;
+            const municipioSelect = document.getElementById('municipio');
+            municipioSelect.innerHTML = ''; // Limpiar opciones anteriores
+
+            let municipios = [];
+
+            // Definir municipios según el departamento
+            if (departamento === 'San Salvador') {
+                municipios = ['San Salvador', 'Soyapango', 'Mejicanos', 'Ilopango'];
+            } else if (departamento === 'La Libertad') {
+                municipios = ['Santa Tecla', 'Antiguo Cuscatlán', 'Colón', 'Ciudad Arce'];
+            } else if (departamento === 'Santa Ana') {
+                municipios = ['Santa Ana', 'Metapán', 'Chalchuapa'];
+            } else if (departamento === 'San Miguel') {
+                municipios = ['San Miguel', 'Chinameca', 'Ciudad Barrios'];
+            }
+            // Agregar municipios
+            municipios.forEach(municipio => {
+                const option = document.createElement('option');
+                option.value = municipio;
+                option.textContent = municipio;
+                municipioSelect.appendChild(option);
+            });
+        }
+
+        // Mostrar las vacunas según el grupo de edad seleccionado
+        function mostrarVacunas() {
+            const grupoEdad = document.getElementById('grupoEdad').value;
+            showForm(grupoEdad);
+        }
+
+        // Datos de vacunas por grupo
+        const vacunasPorGrupo = {
+            Niños: [
+                { nombre: "BCG (Tuberculosis)", fecha: "al nacer" },
+                { nombre: "Hepatitis B", fecha: "al nacer" },
+                { nombre: "Pentavalente", fecha: "2, 4 y 6 meses" },
+                { nombre: "Polio", fecha: "2, 4 y 6 meses" }
+            ],
+            Adultos: [
+                { nombre: "Influenza", fecha: "anual" },
+                { nombre: "Tétanos", fecha: "cada 10 años" },
+                { nombre: "Hepatitis B", fecha: "3 dosis" }
+            ],
+            Embarazadas: [
+                { nombre: "Influenza", fecha: "a partir de las 13 semanas" },
+                { nombre: "Tétanos", fecha: "en el tercer trimestre" }
+            ],
+            Mayores: [
+                { nombre: "Neumococo", fecha: "una dosis" },
+                { nombre: "Influenza", fecha: "anual" }
+            ]
+        };
+
+        // Función para mostrar las vacunas correspondientes según el grupo de edad seleccionado
+        function showForm(grupo) {
+            const container = document.getElementById('vacunacion-form');
+            container.innerHTML = ''; // Limpiar el contenido actual
+
+            // Crear el formulario de vacunas para el grupo seleccionado
+            const vacunas = vacunasPorGrupo[grupo];
+            let formHTML = `<h3>Vacunas para ${grupo}</h3>`;
+            formHTML += `<form id="vacunaForm" onsubmit="guardarDatos(event)">`; // Agregar formulario
+
+            vacunas.forEach(vacuna => {
+                formHTML += `
+                    <div class="form-group">
+                        <label>${vacuna.nombre} (Administrar: ${vacuna.fecha})</label>
+                        <input type="date" name="${vacuna.nombre}" required>
+                    </div>`;
+            });
+
+            formHTML += `
+                <div class="button-container">
+                    <button type="submit">Guardar Datos</button>
+                </div>
+                </form>`; // Cerrar formulario
+            
+            container.innerHTML = formHTML;
+        }
+
+        // Función para guardar los datos
+        async function guardarDatos(event) {
+            event.preventDefault(); // Evitar el comportamiento por defecto del formulario
+
+            const formPaciente = new FormData(document.getElementById('datosPacienteForm')); // Datos del paciente
+            const formVacunas = new FormData(event.target); // Datos de las vacunas
+
+            // Combinar los formularios en un solo objeto
+            const datosCompletos = {
+                ...Object.fromEntries(formPaciente.entries()),
+                vacunas: Object.fromEntries(formVacunas.entries())
+            };
+
+            // Enviar datos al servidor
+            const response = await fetch('/guardar-datos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(datosCompletos),
+            });
+
+            if (response.ok) {
+                alert('Datos guardados correctamente.');
+            } else {
+                alert('Error al guardar los datos.');
+            }
+        }
+    </script>
+</body>
+</html>
